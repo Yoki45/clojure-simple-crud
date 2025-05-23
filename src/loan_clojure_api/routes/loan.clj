@@ -17,5 +17,15 @@
                {:status 200
                 :body loans}))
 
+           ;; PUT /loans/:id - update specific fields of a loan
+           (PUT "/loans/:id" [id :as request]
+             (let [loan-id (Integer/parseInt id)
+                   body    (:body request)]
+               (service/update-loan loan-id body)))
+
+
+           (DELETE "/loans/:id" [id]
+             (let [loan-id (Integer/parseInt id)]
+               (service/delete-loan loan-id)))
 
            )

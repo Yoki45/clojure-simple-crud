@@ -64,6 +64,36 @@
     (:total (jdbc/execute-one! datasource (into [sql] values)))))
 
 
+(defn update-loan!
+  "Updates specified fields for a loan by ID. Returns the updated loan."
+  [loan-id fields-to-update]
+  (let [set-clauses (->> fields-to-update
+                         (map (fn [[field _]]
+                                ;; Convert kebab-case keyword to snake_case column name
+                                (str (clojure.string/replace (name field) "-" "_") " = ?")))
+                         (clojure.string/join ", "))
+        values       (mapv second fields-to-update)
+        sql          (str "UPDATE loans SET " set-clauses " WHERE id = ? RETURNING *")
+        query-params (into [sql] (conj values loan-id))]
+    (jdbc/execute-one!
+      datasource
+      query-params
+      {:builder-fn rs/as-unqualified-lower-maps}))) ;; returns {:id ..., :duration_months ...}
+
+
+(defn delete-loan!
+  "Deletes a loan by ID. Returns the deleted loan ID if found."
+  [loan-id]
+  (jdbc/execute-one!
+    datasource
+    ["DELETE FROM loans WHERE id = ? RETURNING id" loan-id]
+    {:builder-fn rs/as-unqualified-lower-maps}))
+
+
+
+
+
+
 
 
 
