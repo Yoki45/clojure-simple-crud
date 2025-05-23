@@ -1,6 +1,6 @@
 (ns loan_clojure_api.routes.loan
-  (:require [compojure.core :refer :all]
-            [loan-clojure-api.loans.service :as service] ))
+  (:require [compojure.core :refer :all] [compojure.route :as route]
+            [loan-clojure-api.loans.service :as service]))
 
 (defroutes loan-routes
            ;; POST /apply-loan - handles loan application
@@ -27,5 +27,9 @@
            (DELETE "/loans/:id" [id]
              (let [loan-id (Integer/parseInt id)]
                (service/delete-loan loan-id)))
+
+           ;; fallback for 404 - in case the called API does not exist.
+           (route/not-found {:status 404
+                             :body {:error "Route not found"}})
 
            )
